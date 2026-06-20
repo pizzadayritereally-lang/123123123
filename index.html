@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ты • Новелла</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@400;500&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+
+        .scene {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.6s ease-in-out;
+        }
+
+        .dialogue-box {
+            background: rgba(17, 17, 17, 0.92);
+            border: 1px solid #3F3F46;
+            backdrop-filter: blur(12px);
+        }
+
+        .dialogue-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .vn-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .click-hint {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#0C0C0C] text-white min-h-screen flex items-center justify-center p-4">
+    <div class="vn-container w-full">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4 px-2">
+            <div>
+                <div class="text-[#D4AF37] text-sm tracking-[3px]">ТЫ</div>
+                <div class="heading text-3xl font-bold tracking-tighter">Новелла</div>
+            </div>
+            <button onclick="restart()" 
+                    class="px-5 py-2 text-sm border border-[#3F3F46] hover:bg-[#1A1A1A] rounded-2xl transition-colors">
+                Начать заново
+            </button>
+        </div>
+
+        <!-- Main Scene -->
+        <div id="scene" 
+             class="scene w-full aspect-[16/10] rounded-3xl overflow-hidden border border-[#3F3F46] shadow-2xl relative flex items-end"
+             style="background-image: url('6.jpg')">
+            
+            <!-- Dark overlay for readability -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-black/30 to-black/70"></div>
+
+            <!-- Dialogue Box -->
+            <div class="relative w-full p-8 z-10">
+                <div class="dialogue-box max-w-3xl mx-auto rounded-3xl p-8 shadow-2xl">
+                    
+                    <!-- Character / Speaker -->
+                    <div class="flex items-center gap-x-3 mb-4">
+                        <div class="w-3 h-3 bg-[#D4AF37] rounded-full"></div>
+                        <div class="text-[#D4AF37] text-sm font-medium tracking-wider">ТЫ</div>
+                    </div>
+
+                    <!-- Dialogue Text -->
+                    <div id="dialogue-text" 
+                         class="dialogue-text text-xl leading-relaxed min-h-[90px]">
+                    </div>
+
+                    <!-- Next Button -->
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="nextScene()" 
+                                id="next-btn"
+                                class="flex items-center gap-x-2 px-8 py-3 bg-white text-black rounded-2xl font-semibold hover:bg-[#D4AF37] transition-all active:scale-[0.985]">
+                            <span id="next-text">Далее</span>
+                            <span class="text-lg">→</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="flex justify-center mt-4">
+            <div class="flex gap-x-2">
+                <div id="dot-1" class="w-2.5 h-2.5 rounded-full bg-[#D4AF37]"></div>
+                <div id="dot-2" class="w-2.5 h-2.5 rounded-full bg-[#3F3F46]"></div>
+                <div id="dot-3" class="w-2.5 h-2.5 rounded-full bg-[#3F3F46]"></div>
+                <div id="dot-4" class="w-2.5 h-2.5 rounded-full bg-[#3F3F46]"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Audio -->
+    <audio id="audio-888" src="888.mp3"></audio>
+
+    <script>
+        let currentScene = 0;
+
+        const scenes = [
+            {
+                image: "6.jpg",
+                text: "Я собираюсь использовать твоего туза😈😈😈",
+                dots: [true, false, false, false]
+            },
+            {
+                image: "6.jpg",
+                text: "Не бойся это не больно! ❤️😏",
+                dots: [true, true, false, false]
+            },
+            {
+                image: "7.jpg",
+                text: "Поворачивайся 😈😈😈 ❤️😏❤️😏",
+                dots: [true, true, true, false]
+            },
+            {
+                image: "8.jpg",
+                text: "❤️",
+                dots: [true, true, true, true],
+                isFinal: true
+            }
+        ];
+
+        function updateScene() {
+            const scene = scenes[currentScene];
+            const sceneEl = document.getElementById('scene');
+            const textEl = document.getElementById('dialogue-text');
+            const nextBtn = document.getElementById('next-btn');
+            const nextText = document.getElementById('next-text');
+
+            // Change background
+            sceneEl.style.backgroundImage = `url('${scene.image}')`;
+
+            // Update text
+            textEl.innerHTML = scene.text;
+
+            // Update progress dots
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (scene.dots[i-1]) {
+                    dot.classList.add('bg-[#D4AF37]');
+                    dot.classList.remove('bg-[#3F3F46]');
+                } else {
+                    dot.classList.remove('bg-[#D4AF37]');
+                    dot.classList.add('bg-[#3F3F46]');
+                }
+            }
+
+            // Final scene handling
+            if (scene.isFinal) {
+                nextText.innerHTML = 'Закончить';
+                nextBtn.onclick = finishStory;
+                
+                // Play audio on final scene
+                setTimeout(() => {
+                    const audio = document.getElementById('audio-888');
+                    audio.play().catch(() => {
+                        // Autoplay blocked - user can click again
+                        console.log('%c[Новелла] Автовоспроизведение аудио заблокировано браузером', 'color:#666');
+                    });
+                }, 800);
+            } else {
+                nextText.innerHTML = 'Далее';
+                nextBtn.onclick = nextScene;
+            }
+        }
+
+        function nextScene() {
+            if (currentScene < scenes.length - 1) {
+                currentScene++;
+                updateScene();
+            }
+        }
+
+        function finishStory() {
+            const sceneEl = document.getElementById('scene');
+            const textEl = document.getElementById('dialogue-text');
+            const nextBtn = document.getElementById('next-btn');
+
+            sceneEl.style.backgroundImage = `url('8.jpg')`;
+            textEl.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-2">❤️</div>
+                    <div class="text-[#D4AF37]">Конец.</div>
+                </div>
+            `;
+            nextBtn.style.display = 'none';
+
+            // Stop audio if playing
+            const audio = document.getElementById('audio-888');
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        function restart() {
+            currentScene = 0;
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.style.display = 'flex';
+            
+            const audio = document.getElementById('audio-888');
+            audio.pause();
+            audio.currentTime = 0;
+
+            updateScene();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn.style.display !== 'none') {
+                    nextBtn.click();
+                }
+            }
+            
+            if (e.key.toLowerCase() === 'r') {
+                restart();
+            }
+        });
+
+        // Initialize
+        function init() {
+            updateScene();
+            
+            // Optional: show hint on first load
+            setTimeout(() => {
+                const hint = document.createElement('div');
+                hint.className = 'text-center text-xs text-[#666] mt-3 click-hint';
+                hint.innerHTML = 'Нажимай «Далее» или клавишу Space';
+                document.querySelector('.vn-container').appendChild(hint);
+                
+                setTimeout(() => hint.remove(), 4500);
+            }, 6000);
+            
+            console.log('%c[Новелла] Визуальная новелла загружена', 'color:#666');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
